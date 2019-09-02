@@ -1,11 +1,11 @@
 // ==UserScript==
 // @name         百度搜索優化
 // @namespace    https://zijung.me/
-// @version      0.3
+// @version      0.4
 // @description  百度搜索結果頁根據域名過濾、顯示原始網址、移除重定向。修改自：https://github.com/Binkcn/baidu-search-optimization
 // @author       Zijung Chueh <i@zijung.me>
 // @create       2019-01-25
-// @lastmodified 2019-08-13
+// @lastmodified 2019-09-02
 // @license      GNU GPLv3
 // @match        *://www.baidu.com/*
 // @connect      www.baidu.com
@@ -14,6 +14,7 @@
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @grant        GM_addStyle
+// @note         2019-09-02 Version 0.4 修復 AJAX 頁面問題
 // @note         2019-08-13 Version 0.3 添加增刪屏蔽域名功能
 // @note         2019-01-25 Version 0.2 每100毫秒执行一次过滤效果，解决在Ajax搜索下过滤不生效的问题。同时增加对新闻搜索结果的过滤。
 // @note         2019-01-25 Version 0.1 第一个版本发布。
@@ -48,9 +49,10 @@
             color: #666666;
         }
         `;
-    GM_addStyle(style);
 
     setInterval(function() {
+        createConfigBox();
+
         var domList = document.querySelectorAll('h3.t > a, .c-row > a');
 
         for (let aEle of domList) {
@@ -221,11 +223,14 @@
 
     function createConfigBox() {
         let blockListEle = document.querySelector('#baidu_search_opt>ul')
-        if (blockListEle) {
+        if (blockListEle) { // 若存在，清空原來的列表
             while (blockListEle.firstChild) {
                 blockListEle.removeChild(blockListEle.firstChild);
             }
-        } else {
+        } else {    // 否則，創建列表
+            // 添加 CSS
+            GM_addStyle(style);
+
             let container = document.createElement('div');
             container.id = 'baidu_search_opt';
             document.querySelector('body').append(container);
@@ -254,13 +259,12 @@
         try {
             return RegE.exec(string)[1];
         } catch (e) {
-            return '';
         }
+
+        return '';
     }
 
     function getHost(string) {
         return string.replace(/(\/[^/]*|\s*)/, "").replace(/<[^>]*>/g, "").replace(/https?:\/\//g, "").replace(/<\/?strong>/g, "").replace(/<\/?b>/g, "").replace(/<?>?/g, "").replace(/( |\/).*/g, "");
     }
-
-    createConfigBox();
 })();
