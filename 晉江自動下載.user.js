@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         晉江自動下載
-// @namespace    https://zijung.me/
+// @namespace    https://zhihsian.me/
 // @version      2.0.0
 // @description  自動下載晉江小說的內容爲 txt （VIP 章節需自己購買）
-// @author       Zijung Chueh <i@zijung.me>
+// @author       zhihsian <i@zhihsian.me>
 // @license      MIT
 // @match        *://www.jjwxc.net/onebook.php?*
 // @match        *://my.jjwxc.net/onebook_vip.php?*

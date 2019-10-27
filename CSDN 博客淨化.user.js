@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         CSDN 博客淨化
-// @namespace    https://zijung.me/
+// @namespace    https://zhihsian.me/
 // @version      0.1
 // @description  取消 CSDN 博客的「展開閱讀全文」
-// @author       Zijung Chueh <i@zijung.me>
+// @author       zhihsian <i@zhihsian.me>
 // @license      MIT
 // @match        *://blog.csdn.net/*
 // @run-at       document-end

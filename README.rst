@@ -12,6 +12,6 @@ userscripts
 | `百度搜索優化`_  | 百度搜索結果頁根據域名過濾、顯示原始網址、移除重定向。修改自：https://github.com/Binkcn/baidu-search-optimization |
 +------------------+-------------------------------------------------------------------------------------------------------------------+
 
-.. _晉江自動下載: https://raw.githubusercontent.com/zijung/userscripts/master/晉江自動下載.user.js
-.. _CSDN 博客淨化: https://raw.githubusercontent.com/zijung/userscripts/master/CSDN%20博客淨化.user.js
-.. _百度搜索優化: https://raw.githubusercontent.com/zijung/userscripts/master/百度搜索優化.user.js
+.. _晉江自動下載: https://raw.githubusercontent.com/zhihsian/userscripts/master/晉江自動下載.user.js
+.. _CSDN 博客淨化: https://raw.githubusercontent.com/zhihsian/userscripts/master/CSDN%20博客淨化.user.js
+.. _百度搜索優化: https://raw.githubusercontent.com/zhihsian/userscripts/master/百度搜索優化.user.js
