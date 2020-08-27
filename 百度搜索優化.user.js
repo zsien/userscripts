@@ -1,19 +1,20 @@
 // ==UserScript==
 // @name         百度搜索優化
 // @namespace    https://zhihsian.me/
-// @version      0.4.1
+// @version      0.5.0
 // @description  百度搜索結果頁根據域名過濾、顯示原始網址、移除重定向。修改自：https://github.com/Binkcn/baidu-search-optimization
 // @author       zhihsian <i@zhihsian.me>
 // @create       2019-01-25
 // @lastmodified 2020-08-27
 // @license      GNU GPLv3
-// @match        *://www.baidu.com/*
+// @match        *://www.baidu.com/s*
 // @connect      www.baidu.com
 // @grant        GM_xmlhttpRequest
 // @run-at       document-end
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @grant        GM_addStyle
+// @note         2020-08-27 Version 0.5.0 添加屏壁熱榜功能
 // @note         2020-08-27 Version 0.4.1 修復域名匹配失敗
 // @note         2019-09-02 Version 0.4.0 修復 AJAX 頁面問題
 // @note         2019-08-13 Version 0.3.0 添加增刪屏蔽域名功能
@@ -69,6 +70,22 @@
         }
     }, 100);
 
+    (function() {
+        if (!blockReBang) return;
+
+        let title = document.querySelector('[title="百度热榜"]');
+        if (!title) {
+            return;
+        }
+
+        let container = title.closest('.cr-content');
+        if (!container) {
+            return;
+        }
+
+        container.style.display = "none";
+    })()
+
     function parseUrl(aEle) {
         const url = aEle.href.replace(/^http:/, 'https:');
 
@@ -122,10 +139,10 @@
             if (itemShowUrl.querySelector('.c-showurl')) {
                 /*
                  * <div class="c-showurl">
-                 *     <span class="c-showurl">tieba.baidu.com/ </span><span class="c-tools">***</span> - 
+                 *     <span class="c-showurl">tieba.baidu.com/ </span><span class="c-tools">***</span> -
                  *     <a target="_blank" href="http://open.baidu.com/" class="op_LAMP"></a>
                  * </div>
-                 * 
+                 *
                  * 目前只發現有百度貼吧，且顯示了域名「tieba.baidu.com」，不處理
                  */
                 return;
@@ -137,7 +154,7 @@
                 if (itemShowUrl.firstElementChild.tagName == 'B') {
                     /**
                      * <a href="https://edu.csdn.net/" class="c-showurl">https://edu.<b>csdn</b>.net/&nbsp;</a>
-                     * 
+                     *
                      * 已顯示了地址且地址中的關鍵詞被加粗，不處理
                      */
                     return;
@@ -236,6 +253,10 @@
         removeFromBlockList(domain);
     }
 
+    function onBlockReBangToggled() {
+        GM_setValue(blockReBangKey, this.checked);
+    }
+
     function createConfigBox() {
         let blockListEle = document.querySelector('#baidu_search_opt>ul')
         if (blockListEle) { // 若存在，清空原來的列表
@@ -249,6 +270,22 @@
             let container = document.createElement('div');
             container.id = 'baidu_search_opt';
             document.querySelector('body').append(container);
+
+            let blockReBangDiv = document.createElement('div');
+            container.append(blockReBangDiv);
+
+            let blockReBangLabel = document.createElement('label');
+            blockReBangDiv.append(blockReBangLabel);
+
+            let blockReBangInput = document.createElement('input');
+            blockReBangInput.type = 'checkbox';
+            blockReBangInput.checked = blockReBang;
+            blockReBangInput.addEventListener('change', onBlockReBangToggled);
+            blockReBangLabel.append(blockReBangInput);
+
+            let blockReBangSpan = document.createElement('span');
+            blockReBangSpan.innerText = '屏蔽熱榜';
+            blockReBangLabel.append(blockReBangSpan);
 
             blockListEle = document.createElement('ul');
             container.append(blockListEle);
