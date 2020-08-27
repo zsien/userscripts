@@ -1,11 +1,11 @@
 // ==UserScript==
 // @name         百度搜索優化
 // @namespace    https://zhihsian.me/
-// @version      0.4
+// @version      0.4.1
 // @description  百度搜索結果頁根據域名過濾、顯示原始網址、移除重定向。修改自：https://github.com/Binkcn/baidu-search-optimization
 // @author       zhihsian <i@zhihsian.me>
 // @create       2019-01-25
-// @lastmodified 2019-09-02
+// @lastmodified 2020-08-27
 // @license      GNU GPLv3
 // @match        *://www.baidu.com/*
 // @connect      www.baidu.com
@@ -14,19 +14,22 @@
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @grant        GM_addStyle
-// @note         2019-09-02 Version 0.4 修復 AJAX 頁面問題
-// @note         2019-08-13 Version 0.3 添加增刪屏蔽域名功能
-// @note         2019-01-25 Version 0.2 每100毫秒执行一次过滤效果，解决在Ajax搜索下过滤不生效的问题。同时增加对新闻搜索结果的过滤。
-// @note         2019-01-25 Version 0.1 第一个版本发布。
+// @note         2020-08-27 Version 0.4.1 修復域名匹配失敗
+// @note         2019-09-02 Version 0.4.0 修復 AJAX 頁面問題
+// @note         2019-08-13 Version 0.3.0 添加增刪屏蔽域名功能
+// @note         2019-01-25 Version 0.2.0 每100毫秒执行一次过滤效果，解决在Ajax搜索下过滤不生效的问题。同时增加对新闻搜索结果的过滤。
+// @note         2019-01-25 Version 0.1.0 第一个版本发布。
 // ==/UserScript==
 
-(function() {
+(function () {
     'use strict';
 
     const blockListKey = 'blockList';
+    const blockReBangKey = 'blockReBang';
     const parseRedirectStatusAttribute = 'data-parse-redirect-status';
 
     let blockList = GM_getValue(blockListKey, ['baijiahao.baidu.com', 'jingyan.baidu.com']);
+    let blockReBang = GM_getValue(blockReBangKey, true);
 
     const style = `
         #baidu_search_opt {
@@ -50,7 +53,7 @@
         }
         `;
 
-    setInterval(function() {
+    setInterval(function () {
         createConfigBox();
 
         var domList = document.querySelectorAll('h3.t > a, .c-row > a');
@@ -67,21 +70,21 @@
     }, 100);
 
     function parseUrl(aEle) {
-        const url = aEle.href.replace(/^http:$/, 'https:');
+        const url = aEle.href.replace(/^http:/, 'https:');
 
         let xhr = GM_xmlhttpRequest({
             extData: aEle,
             url: url,
-            headers: {"Accept": "*//*", "Referer": url},
+            headers: { "Accept": "*//*", "Referer": url },
             method: "GET",
             timeout: 5000,
-            onreadystatechange: function(response) {
-                if (response.responseHeaders.indexOf("tm-finalurl") >= 0) {
-                    var realUrl = getRegx(response.responseHeaders, "tm-finalurl\\w+: ([^\\s]+)");
-                    if (realUrl == null || realUrl == '' || realUrl.indexOf("www.baidu.com/search/error") > 0) return;
-
-                    doParseRedirectStatus(xhr, aEle, realUrl);
-                }
+            onerror: function (response) {
+                let urlReg = /^Refused to connect to "([^"]+)": Request was redirected to a not whitelisted/;
+                doParseRedirectStatus(xhr, aEle, urlReg, response.error);
+            },
+            onreadystatechange: function (response) {
+                let urlReg = /tm-finalurl\w+: ([^\s]+)/;
+                doParseRedirectStatus(xhr, aEle, urlReg, response.responseHeaders);
             }
         });
     }
@@ -182,8 +185,20 @@
         return null;
     }
 
-    function doParseRedirectStatus(xhr, aEle, realUrl) {
-        if (realUrl == null || realUrl == "" || typeof(realUrl) == "undefined") return;
+    function doParseRedirectStatus(xhr, aEle, regex, content) {
+        let res = regex.exec(content);
+        if (!res) {
+            console.log("匹配地址失敗：", content);
+            return;
+        }
+
+        let realUrl = res[1];
+        if (!realUrl) {
+            console.log("地址不可用：", content);
+            return;
+        }
+
+        if (realUrl.indexOf("www.baidu.com/search/error") > 0) return;
 
         if (realUrl.indexOf("www.baidu.com/link") >= 0) return;
 
@@ -204,7 +219,7 @@
             if (blockList.includes(domain)) {
                 console.log('Block Host Hit', realUrl);
 
-                itemContainer.style = "display: none";
+                itemContainer.style.display = "none";
             }
 
             showUrl(itemContainer, realUrl);
@@ -252,16 +267,6 @@
             removeBlockItemEle.addEventListener('click', onRemoveBlockListItemClick);
             blockItemEle.prepend(removeBlockItemEle);
         }
-    }
-
-    function getRegx(string, reg) {
-        var RegE = new RegExp(reg);
-        try {
-            return RegE.exec(string)[1];
-        } catch (e) {
-        }
-
-        return '';
     }
 
     function getHost(string) {
