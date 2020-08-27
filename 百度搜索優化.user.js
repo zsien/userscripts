@@ -1,19 +1,20 @@
 // ==UserScript==
 // @name         百度搜索優化
 // @namespace    https://zhihsian.me/
-// @version      0.5.1
+// @version      0.5.2
 // @description  百度搜索結果頁根據域名過濾、顯示原始網址、移除重定向。修改自：https://github.com/Binkcn/baidu-search-optimization
 // @author       zhihsian <i@zhihsian.me>
 // @create       2019-01-25
 // @lastmodified 2020-08-27
 // @license      GNU GPLv3
-// @match        *://www.baidu.com/s*
+// @match        *://www.baidu.com/*
 // @connect      www.baidu.com
 // @grant        GM_xmlhttpRequest
 // @run-at       document-end
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @grant        GM_addStyle
+// @note         2020-08-28 Version 0.5.2 修復首頁直接搜索屏蔽失效
 // @note         2020-08-28 Version 0.5.1 修復 AJAX 頁面屏蔽熱榜失效
 // @note         2020-08-27 Version 0.5.0 添加屏壁熱榜功能
 // @note         2020-08-27 Version 0.4.1 修復域名匹配失敗
