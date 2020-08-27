@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         百度搜索優化
 // @namespace    https://zhihsian.me/
-// @version      0.5.0
+// @version      0.5.1
 // @description  百度搜索結果頁根據域名過濾、顯示原始網址、移除重定向。修改自：https://github.com/Binkcn/baidu-search-optimization
 // @author       zhihsian <i@zhihsian.me>
 // @create       2019-01-25
@@ -14,6 +14,7 @@
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @grant        GM_addStyle
+// @note         2020-08-28 Version 0.5.1 修復 AJAX 頁面屏蔽熱榜失效
 // @note         2020-08-27 Version 0.5.0 添加屏壁熱榜功能
 // @note         2020-08-27 Version 0.4.1 修復域名匹配失敗
 // @note         2019-09-02 Version 0.4.0 修復 AJAX 頁面問題
@@ -57,6 +58,8 @@
     setInterval(function () {
         createConfigBox();
 
+        blockReBand();
+
         var domList = document.querySelectorAll('h3.t > a, .c-row > a');
 
         for (let aEle of domList) {
@@ -70,7 +73,7 @@
         }
     }, 100);
 
-    (function() {
+    function blockReBand() {
         if (!blockReBang) return;
 
         let title = document.querySelector('[title="百度热榜"]');
@@ -84,7 +87,7 @@
         }
 
         container.style.display = "none";
-    })()
+    }
 
     function parseUrl(aEle) {
         const url = aEle.href.replace(/^http:/, 'https:');
